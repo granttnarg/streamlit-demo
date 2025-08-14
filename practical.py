@@ -67,7 +67,8 @@ with tab1:
               """,
     unsafe_allow_html=True,
   )
-
+with tab2:
+   st.write("Work in Progress, Come back soon Ya'll! ")
 with tab3:
   year_range = st.slider(
     'Select Year',
