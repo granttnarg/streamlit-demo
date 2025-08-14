@@ -2,8 +2,12 @@ import streamlit as st
 import pandas as pd
 import base64
 import numpy as np
+import sys
+import os
 from model import get_or_create_model
 from PIL import Image
+
+sys.path.append(os.path.dirname(__file__))
 
 # Load and crop image
 image = Image.open("life_2.jpg")
