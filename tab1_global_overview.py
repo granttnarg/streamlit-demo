@@ -33,9 +33,12 @@ def render_tab1(df, model, score, min_year, max_year, countries):
     filtered_df = df[(df['year'] == year)]
     st.write("### GDPPC over Life Expectancy")
     fig = px.scatter(filtered_df, x="GDP per capita", y="Life Expectancy (IHME)",
-                    labels={"GDP per capita": "GDP per Capita",
-                          "Life Expectancy (IHME)": "Life Expectancy"},
-                    color="country")
+                labels={"GDP per capita": "GDP per Capita",
+                      "Life Expectancy (IHME)": "Life Expectancy"},
+                color="country",
+                size="headcount_ratio_upper_mid_income_povline",
+                size_max=20,  # Control max bubble size
+                hover_data={"headcount_ratio_upper_mid_income_povline": ":.1f%"})  # Format poverty as %
 
     st.write(f'#### ML Predictor for {year}')
     gdp = st.slider(
@@ -77,6 +80,10 @@ def render_tab1(df, model, score, min_year, max_year, countries):
     # Display chart only once, outside columns
     fig.update_layout(height=350)
     st.plotly_chart(fig, use_container_width=True)
+    st.markdown(
+    "<small style='font-size: 10px; color: gray;'>*scatter point size weighted on Poverty rate (Head count ratio upper mid income poverty line)</small>", 
+    unsafe_allow_html=True
+    )
 
     mean_life_expectancy = filtered_df['Life Expectancy (IHME)'].mean()
     mean_gdp_per_capita = filtered_df['GDP per capita'].mean()
