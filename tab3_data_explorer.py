@@ -25,7 +25,7 @@ def render_tab3(df, min_year, max_year, countries):
     selected_countries = st.multiselect(
                                         'Select Countries',
                                         options=countries,
-                                        default=[countries[5]],  # Changed to list
+                                        default=countries[:5],  # Changed to list
                                         key="data_explorer_countries"
     )
 
@@ -109,6 +109,34 @@ def render_tab3(df, min_year, max_year, countries):
           (df['year'] <= year_range[1]) &
           (df['country'].isin(selected_countries))
       ]
+
+    if not filtered_df.empty and len(selected_countries) >= 1:
+        # Create comparison for selected countries
+        comparison_data = filtered_df.groupby('country').agg({
+            'GDP per capita': 'mean',
+            'Life Expectancy (IHME)': 'mean',
+            'gini': 'mean',
+            'headcount_ratio_international_povline': 'mean'
+        }).reset_index()
+
+        # Normalize data for comparison (0-100 scale)
+        for col in ['GDP per capita', 'Life Expectancy (IHME)']:
+            comparison_data[f'{col}_norm'] = (comparison_data[col] / comparison_data[col].max()) * 100
+
+        # Invert poverty and inequality (lower is better)
+        for col in ['gini', 'headcount_ratio_international_povline']:
+            comparison_data[f'{col}_norm'] = (1 - comparison_data[col] / comparison_data[col].max()) * 100
+
+        fig_radar = px.bar(
+            comparison_data,
+            x='country',
+            y=['GDP per capita_norm', 'Life Expectancy (IHME)_norm', 'gini_norm', 'headcount_ratio_international_povline_norm'],
+            title="Normalized Country Performance (100 = Best)",
+            barmode='group',
+            height=100
+        )
+        fig_radar.update_layout(height=300, xaxis_tickangle=-45)
+        st.plotly_chart(fig_radar, use_container_width=True)
 
     st.write(f'### World Data {year_range[0]} - {year_range[1]}')
     st.dataframe(data=filtered_df, selection_mode="multi-row")

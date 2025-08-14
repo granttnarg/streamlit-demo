@@ -3,7 +3,6 @@ import pandas as pd
 import plotly.express as px
 import base64
 
-
 def get_audio_base64(audio_file_path):
     with open(audio_file_path, "rb") as audio_file:
         audio_bytes = audio_file.read()
@@ -64,6 +63,7 @@ def render_tab1(df, model, score, min_year, max_year, countries):
           st.session_state.prediction = prediction
           st.write(f"Predicted Life Expectancy: **{prediction:.1f} years**")
           play_impact_sound()
+
     with b:
       st.metric("Model R² Score", f"{score:.3f}")
 
@@ -76,6 +76,7 @@ def render_tab1(df, model, score, min_year, max_year, countries):
                       text='💀',
                       textfont=dict(size=20),
                       name='Prediction')
+
 
     # Display chart only once, outside columns
     fig.update_layout(height=350)
