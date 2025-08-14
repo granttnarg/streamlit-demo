@@ -30,7 +30,7 @@ This demo project demonstrates **data visualization and interactive dashboard de
 ## Installation
 
 ```bash
-git clone [your-repo-url]
+git clone granttnarg/streamlit-demo
 cd streamlit-demo
 pip install -r requirements.txt
 streamlit run practical.py
