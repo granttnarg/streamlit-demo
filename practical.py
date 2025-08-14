@@ -6,8 +6,26 @@ import sys
 import os
 from model import get_or_create_model
 from PIL import Image
+import plotly.express as px
 
 sys.path.append(os.path.dirname(__file__))
+
+import base64
+
+def get_audio_base64(audio_file_path):
+    with open(audio_file_path, "rb") as audio_file:
+        audio_bytes = audio_file.read()
+    audio_base64 = base64.b64encode(audio_bytes).decode()
+    return audio_base64
+
+def play_impact_sound():
+    audio_base64 = get_audio_base64("impact.mp3")  # Your sound file
+    audio_html = f"""
+    <audio autoplay>
+        <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
+    </audio>
+    """
+    st.markdown(audio_html, unsafe_allow_html=True)
 
 # Load and crop image
 image = Image.open("life_2.jpg")
@@ -48,9 +66,10 @@ with tab1:
   # THEN filter and plot
   filtered_df = df[(df['year'] == year)]
   st.write("### GDPPC over Life Expectancy")
-  st.scatter_chart(data=filtered_df, x="GDP per capita", y="Life Expectancy (IHME)",
-                  x_label="GDP per Capita", height=250, y_label="Life Expectancy",
-                  color="#008000", use_container_width=True)
+  fig = px.scatter(filtered_df, x="GDP per capita", y="Life Expectancy (IHME)",
+                  labels={"GDP per capita": "GDP per Capita",
+                        "Life Expectancy (IHME)": "Life Expectancy"},
+                  color="country")
 
   st.write(f'#### ML Predictor for {year}')
   gdp = st.slider(
@@ -72,10 +91,26 @@ with tab1:
 
   with a:
     if st.button("Predict"):
-      prediction = model.predict([[gdp, poverty, year]])[0]
-      st.write(f"Predicted Life Expectancy: **{prediction:.1f} years**")
+        prediction = model.predict([[gdp, poverty, year]])[0]
+        st.session_state.prediction = prediction
+        st.write(f"Predicted Life Expectancy: **{prediction:.1f} years**")
+        play_impact_sound()
   with b:
     st.metric("Model R² Score", f"{score:.3f}")
+
+  # Add prediction point if it exists
+  if st.session_state.get('prediction'):
+      prediction_value = st.session_state.prediction
+      fig.add_scatter(x=[gdp], y=[prediction_value],
+                    mode='markers+text',
+                    marker=dict(symbol='circle', size=20, color='red', opacity=0),
+                    text='💀',
+                    textfont=dict(size=20),
+                    name='Prediction')
+
+  # Display chart only once, outside columns
+  fig.update_layout(height=350)
+  st.plotly_chart(fig, use_container_width=True)
 
   mean_life_expectancy = filtered_df['Life Expectancy (IHME)'].mean()
   mean_gdp_per_capita = filtered_df['GDP per capita'].mean()
@@ -128,8 +163,81 @@ with tab1:
   )
 
 with tab2:
-   st.write("Work in Progress, Come back soon Ya'll! ")
+
+
+  country = st.selectbox(
+                                    'Select Countries',
+                                    options=countries,
+                                    index=0,
+                                    key="data_explorer_country"
+  )
+
+  filtered_df = df[
+        (df['country'] == country)
+    ]
+
+  if not filtered_df.empty:
+    # Calculate smart aggregations
+    latest_year = filtered_df['year'].max()
+    earliest_year = filtered_df['year'].min()
+
+    st.write(f"### 📊 {country} Overview ({earliest_year}-{latest_year})")
+
+    t2a, t2b, t2c = st.columns(3)
+
+    with t2a:
+      # Economic Indicators - use latest for current state
+      latest_gdp = filtered_df[filtered_df['year'] == latest_year]['GDP per capita'].iloc[0]
+      avg_gini = filtered_df['gini'].mean()
+
+      st.metric(
+        "💰 GDP per Capita (Latest)",
+        f"${latest_gdp:,.0f}",
+        help=f"Most recent GDP per capita ({latest_year})"
+      )
+      st.metric(
+        "📊 Avg Gini Coefficient",
+        f"{avg_gini:.3f}",
+        help="Average income inequality over time"
+      )
+
+    with t2b:
+      # Health - latest is best for current state
+      latest_life = filtered_df[filtered_df['year'] == latest_year]['Life Expectancy (IHME)'].iloc[0]
+      avg_poverty = filtered_df['headcount_ratio_international_povline'].mean()
+
+      st.metric(
+        "❤️ Life Expectancy (Latest)",
+        f"{latest_life:.1f} years",
+        help=f"Current life expectancy ({latest_year})"
+      )
+      st.metric(
+        "🌍 Avg International Poverty",
+        f"{avg_poverty:.1f}%",
+        help="Average poverty rate over time"
+      )
+
+    with t2c:
+      # Wealth Distribution - averages work well
+      avg_top10 = filtered_df['decile10_share'].mean()
+      avg_palma = filtered_df['palma_ratio'].mean()
+
+      st.metric(
+        "🔝 Avg Top 10% Share",
+        f"{avg_top10:.1f}%",
+        help="Average wealth concentration over time"
+      )
+      st.metric(
+        "⚖️ Avg Palma Ratio",
+        f"{avg_palma:.2f}",
+        help="Average inequality measure over time"
+      )
+
+  st.dataframe(data=filtered_df, selection_mode="multi-row")
 with tab3:
+  # Load the coordinates CSV
+  coords_df = pd.read_csv("countries_coordinates.csv")
+
   year_range = st.slider(
     'Select Year',
     min_value=min_year,
@@ -140,22 +248,52 @@ with tab3:
   selected_countries = st.multiselect(
                                       'Select Countries',
                                       options=countries,
-                                      default=countries[5],
+                                      default=[countries[5]],  # Changed to list
                                       key="data_explorer_countries"
   )
 
+  st.write("### Interactive World Map")
+  # Merge coordinates with your data for selected countries
+  map_data = coords_df[coords_df['country'].isin(selected_countries)].copy()
+  if not map_data.empty:
+    # Create the world map
+    fig_map = px.scatter_geo(
+        map_data,
+        lat='lat',
+        lon='long',
+        hover_name='country',
+        title="Selected Countries",
+        projection="equirectangular",
+    )
+    # Customize the map
+    fig_map.update_traces(
+        marker=dict(
+            size=12,
+            color='red',
+            symbol='circle',
+            line=dict(width=2, color='darkred')
+        )
+    )
+
+    fig_map.update_layout(
+        width=500,
+        geo=dict(
+            showframe=False,
+            showcoastlines=True,
+            projection_type='equirectangular'
+        )
+    )
+    st.plotly_chart(fig_map, use_container_width=True)
+  else:
+    st.write("Select countries to see them on the map")
+
+  # Filter data based on selections
   filtered_df = df[
         (df['year'] >= year_range[0]) &
         (df['year'] <= year_range[1]) &
         (df['country'].isin(selected_countries))
     ]
 
+  st.write(f'### World Data {year_range[0]} - {year_range[1]}')
   st.dataframe(data=filtered_df, selection_mode="multi-row")
   st.markdown(download_csv('Filtered Data Frame',filtered_df),unsafe_allow_html=True)
-
-
-
-#task 6 in tab 1: create a simple model (conda install scikit-learn -y; Randomforest Regressor): features only 3 columns: ['GDP per capita', 'headcount_ratio_upper_mid_income_povline', 'year']; target: 'Life Expectancy (IHME)'
-#you might store the code in an extra model.py file
-#make input fields for inference of the features (according to existing values in the dataset) and use the model to predict the life expectancy for the input values
-#additional: show the feature importance as a bar plot
