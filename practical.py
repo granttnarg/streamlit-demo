@@ -81,18 +81,19 @@ with tab1:
   st.write(f'#### Data for {year}')
   st.dataframe(data=filtered_df, selection_mode="multi-row")
 
-  st.write(f'### Metrics {year}')
-  col1, col2 = st.columns(2)
-  col3, col4 = st.columns(2)
+  with st.sidebar:
+      st.header("📊 Dataset Overview")
+      st.metric("Total Countries", len(countries))
+      st.metric("Year Range", f"{min_year} - {max_year}")
+      st.metric("Total Records", len(df))
+      st.metric("Model Accuracy (R²)", f"{score:.3f}")
 
-  with col1:
+      st.header(f'📊 {year} Metrics')
+      col1, col2 = st.columns(2)
       st.metric("Mean Life Expectancy", f"{mean_life_expectancy:.2f} years")
-  with col2:
       st.metric("Mean GDP per capita", f"{mean_gdp_per_capita:.2f}")
-  with col3:
       st.metric("Country Count", f"{number_of_countries}")
-  with col4:
-     st.metric("Mean HC Ratio Upper Mid Income Poverty Line", f"{mean_headcount_ratio_upper_mid_income_povline:.2f}")
+      st.metric("Mean Ratio Poverty Line", f"{mean_headcount_ratio_upper_mid_income_povline:.2f}")
 
   st.markdown(
              """
