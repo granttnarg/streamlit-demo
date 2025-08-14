@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import base64
 import numpy as np
-from model import create_model
+from model import get_or_create_model
 from PIL import Image
 
 # Load and crop image
@@ -31,7 +31,7 @@ def download_csv(name,df):
 
   return file
 
-model, score = create_model('global_development_data.csv')
+model, score = get_or_create_model('global_development_data.csv')
 
 with tab1:
   year = st.slider(
@@ -100,6 +100,23 @@ with tab1:
                 <style>
                 [data-testid="stMetricValue"] {
                     font-size: 18px;
+                }
+                .main .block-container {
+                    padding-top: 1rem;
+                    padding-bottom: 0rem;
+                    padding-left: 1rem;
+                    padding-right: 1rem;
+                    max-width: 100%;
+                }
+
+                .stTabs [data-baseweb="tab-list"] {
+                    margin-left: 0;
+                    margin-right: 0;
+                }
+
+                .element-container {
+                    margin: 0 !important;
+                    padding: 0 !important;
                 }
                 </style>
               """,
