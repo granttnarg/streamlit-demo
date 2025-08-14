@@ -2,6 +2,8 @@
 
 An interactive Streamlit web application for exploring relationships between economic indicators, poverty rates, and life expectancy across countries and time periods.
 
+[Deployed Interactive App can be found here.](https://granttnarg-streamlit-demo-practical-g2lbi4.streamlit.app/)
+
 ## Overview
 
 This demo project demonstrates **data visualization and interactive dashboard development** using Streamlit and Plotly. The focus is on creating intuitive, responsive visualizations that allow users to explore global country data and understand disparities in world economic factor over time using real data.
