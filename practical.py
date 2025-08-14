@@ -10,7 +10,7 @@ image = Image.open("life_2.jpg")
 
 header_image = image.crop((0, 200, image.width, 1200))  # Shows top 200 pixels
 
-st.write("# Worldwide Analysis of Quality of Life and Economic Factors")
+st.write("# 🌎 Worldwide Analysis of Quality of Life and Economic Factors")
 st.write("This app enables you to explore the relationships between poverty, life expectancy, and GDP across various countries and years. Use the panels to select options and interact with the data.")
 st.image(header_image, use_container_width=True)
 
