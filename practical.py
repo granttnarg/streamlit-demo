@@ -13,7 +13,7 @@ sys.path.append(os.path.dirname(__file__))
 # Load and crop image
 image = Image.open("life_2.jpg")
 
-header_image = image.crop((0, 200, image.width, 1200))
+header_image = image.crop((0, 400, image.width, 950))
 
 st.write("# 🌎 Worldwide Analysis of Quality of Life and Economic Factors")
 st.write("This app enables you to explore the relationships between poverty, life expectancy, and GDP across various countries and years. Use the panels to select options and interact with the data.")
@@ -37,3 +37,39 @@ with tab2:
     render_tab2(df, countries)
 with tab3:
     render_tab3(df, min_year, max_year, countries)
+
+# Add global CSS for better container width
+st.markdown(
+    """
+    <style>
+    .main .block-container {
+        padding-left: 2rem;
+        padding-right: 2rem;
+        max-width: 1400px;
+        width: 100%;
+    }
+    
+    /* Target the main content area more broadly */
+    div[data-testid="stAppViewContainer"] > .main {
+        max-width: 1400px;
+        margin: auto;
+    }
+    
+    /* Only target the main content area, not sidebar */
+    section[data-testid="stMain"] div[class*="st-emotion-cache"] {
+        max-width: 1400px !important;
+    }
+    
+    /* Ensure content fills available width within main area */
+    section[data-testid="stMain"] .stTabs [data-baseweb="tab-panel"] > div {
+        width: 100% !important;
+    }
+    
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 2rem;
+        justify-content: center;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)

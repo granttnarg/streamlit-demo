@@ -3,25 +3,41 @@ import pandas as pd
 
 
 def render_tab2(df, countries):
-    country = st.selectbox(
-                                      'Select Countries',
-                                      options=countries,
-                                      index=0,
-                                      key="data_explorer_country"
-    )
-
-    filtered_df = df[
-          (df['country'] == country)
-      ]
-
+    st.write("### 📊 Country Deep Dive")
+    st.markdown('<div style="margin-bottom: 30px;"></div>', unsafe_allow_html=True)
+    
+    # Create 4 columns: selector + 3 metrics
+    selector_col, t2a, t2b, t2c = st.columns(4)
+    
+    with selector_col:
+        st.markdown(
+            """
+            <style>
+            div[data-testid="stSelectbox"] {
+                margin-top: -30px !important;
+                margin-right: 30px !important;
+            }
+            div[data-testid="stSelectbox"] label {
+                margin-top: -10px !important;
+                margin-right: 30px !important;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+        country = st.selectbox(
+            'Select Country',
+            options=countries,
+            index=0,
+            key="single_country_selector"
+        )
+    
+    filtered_df = df[df['country'] == country]
+    
     if not filtered_df.empty:
-      # Calculate smart aggregations
+      # Calculate smart aggregations  
       latest_year = filtered_df['year'].max()
       earliest_year = filtered_df['year'].min()
-
-      st.write(f"### 📊 {country} Overview ({earliest_year}-{latest_year})")
-
-      t2a, t2b, t2c = st.columns(3)
 
       with t2a:
         # Economic Indicators - use latest for current state
@@ -70,5 +86,6 @@ def render_tab2(df, countries):
           f"{avg_palma:.2f}",
           help="Average inequality measure over time"
         )
-
+    
+    st.markdown('<div style="margin-top: 40px;"></div>', unsafe_allow_html=True)
     st.dataframe(data=filtered_df, selection_mode="multi-row")
