@@ -43,31 +43,35 @@ st.markdown(
     """
     <style>
     .main .block-container {
-        padding-left: 2rem;
-        padding-right: 2rem;
         max-width: 1400px;
         width: 100%;
     }
-    
+
     /* Target the main content area more broadly */
     div[data-testid="stAppViewContainer"] > .main {
         max-width: 1400px;
         margin: auto;
     }
-    
+
     /* Only target the main content area, not sidebar */
     section[data-testid="stMain"] div[class*="st-emotion-cache"] {
         max-width: 1400px !important;
     }
-    
+
     /* Ensure content fills available width within main area */
     section[data-testid="stMain"] .stTabs [data-baseweb="tab-panel"] > div {
         width: 100% !important;
     }
-    
+
     .stTabs [data-baseweb="tab-list"] {
         gap: 2rem;
         justify-content: center;
+    }
+
+    /* Override specific auto-generated container */
+    .st-emotion-cache-1w723zb {
+        padding-left: 4rem !important;
+        padding-right: 4rem !important;
     }
     </style>
     """,

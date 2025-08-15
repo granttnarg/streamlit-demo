@@ -22,10 +22,10 @@ def play_impact_sound():
 
 def render_tab1(df, model, score, min_year, max_year, countries):
     st.write("### GDP per Capita vs Life Expectancy")
-    
+
     # Create main layout with sliders on left and plot on right
     left_col, right_col = st.columns([1, 2])
-    
+
     with left_col:
         year = st.slider(
             'Select Year',
@@ -33,7 +33,7 @@ def render_tab1(df, model, score, min_year, max_year, countries):
             max_value=max_year,
             value=(max_year)
         )
-        
+
         st.write(f'#### ML Predictor for {year}')
         gdp = st.slider(
             "GDP per capita",
@@ -48,13 +48,13 @@ def render_tab1(df, model, score, min_year, max_year, countries):
             max_value=float(df['headcount_ratio_upper_mid_income_povline'].max()),
             value=float(df['headcount_ratio_upper_mid_income_povline'].mean())
         )
-        
+
         if st.button("Predict"):
             prediction = model.predict([[gdp, poverty, year]])[0]
             st.session_state.prediction = prediction
             st.write(f"Predicted Life Expectancy: **{prediction:.1f} years**")
             play_impact_sound()
-            
+
         st.metric("Model R² Score", f"{score:.3f}")
 
     with right_col:

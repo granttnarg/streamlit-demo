@@ -14,13 +14,13 @@ def download_csv(name, df):
 def render_tab3(df, min_year, max_year, countries):
     # Load the coordinates CSV
     coords_df = pd.read_csv("countries_coordinates.csv")
-    
+
     # Add centered title above the layout
     st.markdown('<div style="text-align: center;"><h3>Data Explorer</h3></div>', unsafe_allow_html=True)
-    
+
     # Create layout with narrow controls on left and map on right
     left_col, right_col = st.columns([1, 4])
-    
+
     with left_col:
         st.markdown('<div style="margin-top: 100px;"></div>', unsafe_allow_html=True)
         year_range = st.slider(
@@ -33,7 +33,7 @@ def render_tab3(df, min_year, max_year, countries):
         selected_countries = st.multiselect(
                                             'Select Countries',
                                             options=countries,
-                                            default=countries[:5],
+                                            default=countries[1:8],
                                             key="data_explorer_countries"
         )
 
@@ -150,7 +150,7 @@ def render_tab3(df, min_year, max_year, countries):
 
     st.write(f'### World Data {year_range[0]} - {year_range[1]}')
     st.dataframe(data=filtered_df, selection_mode="multi-row")
-    
+
     # Convert filtered dataframe to CSV for download
     csv_data = filtered_df.to_csv(index=False)
     st.download_button(

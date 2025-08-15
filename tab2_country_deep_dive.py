@@ -5,10 +5,10 @@ import pandas as pd
 def render_tab2(df, countries):
     st.write("### 📊 Country Deep Dive")
     st.markdown('<div style="margin-bottom: 30px;"></div>', unsafe_allow_html=True)
-    
+
     # Create 4 columns: selector + 3 metrics
     selector_col, t2a, t2b, t2c = st.columns(4)
-    
+
     with selector_col:
         st.markdown(
             """
@@ -31,11 +31,11 @@ def render_tab2(df, countries):
             index=0,
             key="single_country_selector"
         )
-    
+
     filtered_df = df[df['country'] == country]
-    
+
     if not filtered_df.empty:
-      # Calculate smart aggregations  
+      # Calculate smart aggregations
       latest_year = filtered_df['year'].max()
       earliest_year = filtered_df['year'].min()
 
@@ -86,6 +86,6 @@ def render_tab2(df, countries):
           f"{avg_palma:.2f}",
           help="Average inequality measure over time"
         )
-    
+
     st.markdown('<div style="margin-top: 40px;"></div>', unsafe_allow_html=True)
     st.dataframe(data=filtered_df, selection_mode="multi-row")
